@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Créer une maquette — 3D Visio</title>
+<link rel="stylesheet" href="/lib/visio.css">
+<style>
+html,body{height:100%;overflow:hidden}
+#app{position:fixed;inset:0}
+#top{position:fixed;top:10px;left:10px;right:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none;z-index:5}
+#top>*{pointer-events:auto}
+#title{padding:8px 12px;font-weight:700;font-size:14px;max-width:40vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#views{display:flex;gap:3px;padding:3px;margin-left:auto}#views button{border:0;background:transparent;padding:7px 10px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer}#views button.on{background:var(--navy);color:#fff}
+#tools{position:fixed;top:64px;right:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-end;z-index:5;max-height:calc(100vh - 140px);overflow-y:auto}
+#tools .btn{box-shadow:0 2px 10px rgba(0,0,0,.08);background:#fff}
+#rooms{display:none;flex-direction:column;gap:4px;padding:8px;max-height:50vh;overflow:auto;width:230px}#rooms.open{display:flex}#rooms button{text-align:left;border:0;background:#eef1f4;border-radius:8px;padding:7px 9px;font-size:12px;font-weight:600;cursor:pointer}
+#levels{display:flex;flex-wrap:wrap;gap:4px;padding:6px;justify-content:flex-end}#levels button{border:0;border-radius:8px;padding:6px 9px;font-size:12px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff}#levels button.off{background:#dde3e9;color:#556}
+#panel{position:fixed;left:10px;bottom:10px;top:64px;width:min(380px,94vw);display:flex;flex-direction:column;z-index:6;overflow:hidden;transition:transform .25s}
+#panel.hidden{transform:translateX(-110%)}
+#panel .hd{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #e6e9ec}
+#wiz{padding:14px;overflow:auto}#wiz h2{margin:0 0 6px;font-size:18px}#wiz p{margin:0 0 10px;color:var(--mute);font-size:13px;line-height:1.45}
+#wiz textarea,#chatIn{width:100%;border:1px solid #d5dade;border-radius:10px;padding:10px;font:inherit;font-size:13px;resize:vertical}
+#wiz .ex{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}#wiz .ex button{border:0;background:#fdf1d8;color:#6b4a00;font-size:11px;padding:6px 9px;border-radius:12px;cursor:pointer;text-align:left}
+#drop{border:2px dashed #c9d1d9;border-radius:12px;padding:12px;text-align:center;font-size:13px;color:var(--mute);margin:8px 0;cursor:pointer}#drop img{max-width:100%;max-height:140px;border-radius:8px;display:block;margin:6px auto 0}
+#chat{display:none;flex-direction:column;flex:1;min-height:0}#chat.on{display:flex}
+#log{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:7px;font-size:13px;line-height:1.4}
+.m{padding:8px 11px;border-radius:12px;max-width:90%;white-space:pre-wrap}.m.u{align-self:flex-end;background:var(--navy);color:#fff}.m.a{align-self:flex-start;background:#eef1f4}
+#chat .ft{display:flex;gap:6px;padding:8px;border-top:1px solid #e6e9ec}#chatIn{resize:none}
+#toggle{position:fixed;left:10px;bottom:10px;z-index:7;display:none}
+#hint{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:5px 12px;border-radius:14px;pointer-events:none;max-width:90vw;text-align:center}
+#busy{display:none;position:fixed;inset:0;background:rgba(238,242,246,.6);z-index:20;align-items:center;justify-content:center;font-weight:700}#busy.on{display:flex}
+#busy .spin{width:38px;height:38px;border:4px solid #c9d1d9;border-top-color:var(--red);border-radius:50%;animation:s 1s linear infinite;margin-right:12px}@keyframes s{to{transform:rotate(360deg)}}
+@media(max-width:700px){#title{display:none}#panel{top:auto;height:55vh}}
+</style></head><body>
+<div id="app"></div>
+<div id="top"><a class="logo card" href="/" style="padding:8px 12px"><span class="cube"></span>3D<b>Visio</b></a><div id="title" class="card">Nouvelle maquette</div>
+<div id="views" class="card"><button data-v="ext" class="on">Extérieur</button><button data-v="notoit">Sans toit</button><button data-v="plan">Plan</button><button data-v="int">Intérieur</button></div></div>
+<div id="tools">
+  <button class="btn small" id="roomsBtn">☰ Pièces</button><div id="rooms" class="card"></div>
+  <div id="levels" class="card"></div>
+  <button class="btn small" id="nightBtn">🌙 Nuit</button>
+  <button class="btn small" id="lblBtn">🏷 Étiquettes</button>
+  <button class="btn small" id="saveBtn">💾 Enregistrer</button>
+  <button class="btn small" id="expBtn">⬇ Exporter</button>
+  <label class="btn small" style="cursor:pointer">⬆ Importer<input id="impIn" type="file" accept=".json,application/json" hidden></label>
+  <button class="btn small" id="newBtn">✚ Nouvelle</button>
+</div>
+<aside id="panel" class="card">
+  <div class="hd"><b>🤖 Assistant 3D Visio</b><button class="btn small" id="hideBtn">⟨</button></div>
+  <div id="wiz">
+    <h2>Décris ton bâtiment</h2>
+    <p>Maison, immeuble, église, école, commerce, porcherie, poulailler… Donne les dimensions, les pièces, le toit et les matériaux. Tu peux aussi joindre la photo d'un plan.</p>
+    <textarea id="desc" rows="6" placeholder="Ex. : Maison de plain-pied 12 × 9 m, 3 chambres, salon, cuisine, une salle de bain, terrasse devant, toit 2 pans en tôle, murs en parpaing enduit beige."></textarea>
+    <div class="ex"><button>Maison 3 chambres 12 × 9 m, toit 2 pans tôle, terrasse</button><button>Porcherie 22 × 6 m, 2 rangées d'enclos de 2,5 m, couloir central 1 m, toit 1 pan en tôle</button><button>Petite église 15 × 25 m, estrade, 300 chaises, toit 2 pans</button><button>Boutique 8 × 6 m avec réserve et WC, façade vitrée</button></div>
+    <div id="drop">📎 Joindre une photo de plan (facultatif)<input id="planIn" type="file" accept="image/*" hidden><div id="planPrev"></div></div>
+    <button class="btn primary" id="genBtn" style="width:100%;justify-content:center">✨ Générer la maquette 3D</button>
+    <p style="margin-top:10px;font-size:12px">Ou ouvre <a href="/creer/?demo=maison">l'exemple de maison</a>.</p>
+  </div>
+  <div id="chat"><div id="log"></div><div class="ft"><textarea id="chatIn" rows="2" placeholder="Demande une modification… (ex. ajoute une chambre au nord, toit en tuiles)"></textarea><button class="btn primary" id="sendBtn">➤</button></div></div>
+</aside>
+<button class="btn dark" id="toggle">🤖 Assistant</button>
+<div id="hint">Glisser pour tourner · molette pour zoomer</div>
+<div id="busy"><div class="spin"></div><span id="busyTxt">L'IA dessine ta maquette…</span></div>
+<script src="/lib/three.min.js"></script><script src="/lib/OrbitControls.js"></script><script src="/lib/engine.js"></script><script src="/lib/ai.js"></script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const V=Visio.Viewer($('app'),{onView:v=>{document.querySelectorAll('#views button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('hint').textContent=v==='int'?'Souris : regarder · Z/W avancer · S reculer · Q/A–D côté · ←→ tourner · PgUp/PgDn monter · Maj courir':'Glisser pour tourner · molette pour zoomer';}});
+let spec=null,pid=null,hist=[],planB64=null,night=false;
+const store={all(){try{return JSON.parse(localStorage.getItem('visio_projects')||'[]')}catch(e){return []}},save(list){try{localStorage.setItem('visio_projects',JSON.stringify(list))}catch(e){}}};
+function show(s){spec=Visio.normalize(s);V.load(spec);$('title').textContent=spec.nom||'Maquette';document.title=(spec.nom||'Maquette')+' — 3D Visio';
+  const m=V.model;$('rooms').innerHTML=m.rooms.map(r=>`<button data-r="${r.id}">${r.nom} <small style="color:#889">(${m.levels[r.niveau].nom})</small></button>`).join('');
+  $('levels').innerHTML=m.levels.map((l,i)=>`<button data-l="${i}">${l.nom}</button>`).join('');$('wiz').style.display='none';$('chat').classList.add('on');}
+function save(){if(!spec)return;const list=store.all();if(!pid)pid='p'+Date.now();const i=list.findIndex(p=>p.id===pid);const item={id:pid,nom:spec.nom,date:Date.now(),spec};if(i>=0)list[i]=item;else list.unshift(item);store.save(list.slice(0,30));history.replaceState(null,'','/creer/?p='+pid);}
+function add(role,t){const d=document.createElement('div');d.className='m '+role;d.textContent=t;$('log').appendChild(d);$('log').scrollTop=1e9;return d;}
+const tools=[
+ {name:'definir_maquette',description:"Crée ou remplace entièrement la maquette 3D. Fournis TOUJOURS la maquette complète (toutes les pièces, ouvertures, mobilier, toit, extérieur), y compris ce qui ne change pas.",inputSchema:Visio.SCHEMA,execute:(s)=>{show(s);save();const m=V.model;return `Maquette affichée : ${m.rooms.length} pièces, ${m.levels.length} niveau(x), emprise ${(m.bounds.maxX-m.bounds.minX).toFixed(1)} × ${(m.bounds.maxZ-m.bounds.minZ).toFixed(1)} m.`;}},
+ {name:'aller_piece',description:'Entre dans une pièce (id) en vue intérieure.',inputSchema:{type:'object',properties:{id:{type:'string'}},required:['id']},execute:({id})=>V.goRoom(id)?'ok':'pièce introuvable'},
+ {name:'vue',description:'Change la vue : ext, notoit, plan, int.',inputSchema:{type:'object',properties:{v:{type:'string',enum:['ext','notoit','plan','int']}},required:['v']},execute:({v})=>{V.setView(v);return 'ok';}},
+ {name:'nuit',description:'Active (true) ou désactive (false) le mode nuit.',inputSchema:{type:'object',properties:{on:{type:'boolean'}},required:['on']},execute:({on})=>{night=on;V.setNight(on);return 'ok';}}];
+function system(){return `Tu es l'architecte IA de 3D Visio. Tu crées et modifies des maquettes 3D de bâtiments (maisons, immeubles, églises, écoles, commerces, bâtiments agricoles…) à partir de descriptions, de devis ou de photos de plans. Tu réponds en français, en phrases courtes, étape par étape.
+Pour créer ou modifier une maquette, appelle l'outil definir_maquette avec la maquette COMPLÈTE. Ensuite, résume en 3 à 6 lignes : dimensions, pièces, et les points à vérifier (cotes manquantes ou contradictoires et la valeur choisie).
+Si la demande vient d'une photo de plan : lis toutes les cotes, pièces, murs, portes et fenêtres ; respecte les proportions.
+${Visio.GUIDE}
+${spec?'MAQUETTE ACTUELLE (JSON) :\n'+JSON.stringify(spec):'Aucune maquette pour le moment.'}`;}
+let busy=false;
+async function ask(text,withImage){if(busy)return;busy=true;$('sendBtn').disabled=$('genBtn').disabled=true;$('busy').classList.add('on');$('busyTxt').textContent=spec?"L'IA modifie la maquette…":"L'IA dessine ta maquette… (20 à 60 s)";
+  add('u',text);const out=add('a','…');
+  try{const content=withImage&&planB64?[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:planB64}},{type:'text',text}]:text;
+    const msgs=hist.concat([{role:'user',content}]);
+    const r=await VisioAI.loop({system:system(),messages:msgs,tools,tool_choice:spec?undefined:{type:'tool',name:'definir_maquette'},max_tokens:16000,onText:({text})=>{out.textContent=text;}});
+    out.textContent=r.text||'Maquette mise à jour.';hist.push({role:'user',content:text},{role:'assistant',content:out.textContent});if(hist.length>12)hist=hist.slice(-12);}
+  catch(e){out.textContent=e.code==='rate_limited'?'Trop de demandes, réessaie dans quelques minutes.':e.code==='not_configured'?"Le site n'a pas encore de clé IA configurée (voir le guide de mise en ligne).":'Erreur : '+e.message;}
+  finally{busy=false;$('sendBtn').disabled=$('genBtn').disabled=false;$('busy').classList.remove('on');}}
+$('genBtn').onclick=()=>{const t=$('desc').value.trim()||(planB64?'Crée la maquette 3D à partir de ce plan.':'');if(!t)return $('desc').focus();$('wiz').style.display='none';$('chat').classList.add('on');ask(t,true);};
+document.querySelectorAll('#wiz .ex button').forEach(b=>b.onclick=()=>{$('desc').value=b.textContent;});
+$('drop').onclick=()=>$('planIn').click();$('planIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;planB64=await VisioAI.imageToBase64(f);$('planPrev').innerHTML=`<img src="data:image/jpeg;base64,${planB64}">`;};
+$('sendBtn').onclick=()=>{const t=$('chatIn').value.trim();if(!t)return;$('chatIn').value='';ask(t,false);};
+$('chatIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('sendBtn').click();}});
+document.querySelectorAll('#views button').forEach(b=>b.onclick=()=>{if(spec)V.setView(b.dataset.v);});
+$('roomsBtn').onclick=()=>$('rooms').classList.toggle('open');$('rooms').onclick=e=>{const b=e.target.closest('button');if(b){V.goRoom(b.dataset.r);if(innerWidth<700)$('rooms').classList.remove('open');}};
+$('levels').onclick=e=>{const b=e.target.closest('button');if(!b)return;const off=b.classList.toggle('off');V.setLevelVisible(+b.dataset.l,!off);};
+$('nightBtn').onclick=()=>{night=!night;V.setNight(night);$('nightBtn').textContent=night?'☀️ Jour':'🌙 Nuit';};
+$('lblBtn').onclick=()=>{V.labels=!V.labels;};
+$('saveBtn').onclick=()=>{save();$('saveBtn').textContent='✓ Enregistré';setTimeout(()=>$('saveBtn').textContent='💾 Enregistrer',1500);};
+$('expBtn').onclick=()=>{if(!spec)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(spec,null,2)],{type:'application/json'}));a.download=(spec.nom||'maquette').replace(/[^\w\-]+/g,'_')+'.json';a.click();};
+$('impIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const s=JSON.parse(await f.text());pid=null;show(s);save();add('a','Maquette importée.');}catch(err){alert('Fichier invalide');}};
+$('newBtn').onclick=()=>{location.href='/creer/';};
+$('hideBtn').onclick=()=>{$('panel').classList.add('hidden');$('toggle').style.display='inline-flex';};$('toggle').onclick=()=>{$('panel').classList.remove('hidden');$('toggle').style.display='none';};
+// chargement initial
+const q=new URLSearchParams(location.search);
+if(q.get('demo')){fetch('/projets/'+q.get('demo').replace(/[^\w-]/g,'')+'-demo.json').then(r=>r.json()).then(s=>{show(s);add('a','Voici l\'exemple. Demande-moi une modification, par ex. « ajoute un étage avec 2 chambres » ou « toit en tuiles rouges ».');});}
+else if(q.get('p')){const it=store.all().find(p=>p.id===q.get('p'));if(it){pid=it.id;show(it.spec);add('a','Projet chargé. Que veux-tu modifier ?');}}
+})();
+</script></body></html>

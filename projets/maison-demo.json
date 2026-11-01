@@ -1,0 +1,62 @@
+{
+  "nom": "Exemple — Maison 3 chambres",
+  "description": "Maison de plain-pied 13 × 10 m, toit 2 pans en tôle, terrasse couverte.",
+  "murs": { "epaisseur": 0.2, "materiau": "enduit", "couleur": "#efe6d2" },
+  "niveaux": [{
+    "nom": "RDC", "hauteur": 3,
+    "pieces": [
+      { "id": "salon", "nom": "Salon", "x": 0, "z": 0, "largeur": 6, "profondeur": 5, "sol": "carrelage" },
+      { "id": "cuisine", "nom": "Cuisine", "x": 6, "z": 0, "largeur": 3.5, "profondeur": 3, "sol": "carrelage" },
+      { "id": "sdb", "nom": "Salle de bain", "x": 9.5, "z": 0, "largeur": 3.5, "profondeur": 3, "sol": "carrelage", "couleur_mur": "#a9c7dc" },
+      { "id": "couloir", "nom": "Couloir", "x": 6, "z": 3, "largeur": 7, "profondeur": 1.4, "sol": "carrelage" },
+      { "id": "ch1", "nom": "Chambre 1", "x": 0, "z": 5, "largeur": 4.5, "profondeur": 4, "sol": "parquet" },
+      { "id": "ch2", "nom": "Chambre 2", "x": 6, "z": 4.4, "largeur": 3.5, "profondeur": 4.6, "sol": "parquet" },
+      { "id": "ch3", "nom": "Chambre 3", "x": 9.5, "z": 4.4, "largeur": 3.5, "profondeur": 4.6, "sol": "parquet" },
+      { "id": "entree", "nom": "Entrée", "x": 4.5, "z": 5, "largeur": 1.5, "profondeur": 4, "sol": "carrelage" },
+      { "id": "terrasse", "nom": "Terrasse", "x": 0, "z": 9, "largeur": 6, "profondeur": 2.5, "sol": "beton", "ouvert": true }
+    ],
+    "ouvertures": [
+      { "piece": "entree", "mur": "sud", "type": "porte", "position": 0.3, "largeur": 1.0 },
+      { "piece": "entree", "mur": "nord", "type": "porte", "position": 0.3 },
+      { "piece": "salon", "mur": "nord", "type": "baie", "position": 1.5, "largeur": 2.4 },
+      { "piece": "salon", "mur": "ouest", "type": "fenetre", "position": 1.8 },
+      { "piece": "salon", "mur": "est", "type": "porte", "position": 0.9 },
+      { "piece": "cuisine", "mur": "nord", "type": "fenetre", "position": 1.2 },
+      { "piece": "cuisine", "mur": "sud", "type": "porte", "position": 1.2 },
+      { "piece": "sdb", "mur": "nord", "type": "fenetre", "position": 1.4, "largeur": 0.8, "hauteur": 0.6, "allege": 1.6 },
+      { "piece": "sdb", "mur": "sud", "type": "porte", "position": 1.3, "largeur": 0.8 },
+      { "piece": "ch1", "mur": "ouest", "type": "fenetre", "position": 1.4 },
+      { "piece": "ch1", "mur": "est", "type": "porte", "position": 0.4 },
+      { "piece": "ch2", "mur": "nord", "type": "porte", "position": 0.3 },
+      { "piece": "ch2", "mur": "sud", "type": "fenetre", "position": 1.2 },
+      { "piece": "ch3", "mur": "nord", "type": "porte", "position": 0.3 },
+      { "piece": "ch3", "mur": "sud", "type": "fenetre", "position": 1.2 },
+      { "piece": "ch3", "mur": "est", "type": "fenetre", "position": 1.7 },
+      { "piece": "couloir", "mur": "ouest", "type": "porte", "position": 0.25 }
+    ],
+    "mobilier": [
+      { "type": "canape", "x": 2.5, "z": 4.2, "rotation": 180 },
+      { "type": "tv", "x": 2.5, "z": 0.45 },
+      { "type": "table", "x": 4.6, "z": 2.4 },
+      { "type": "chaise", "x": 4.1, "z": 1.7 }, { "type": "chaise", "x": 5.1, "z": 1.7 },
+      { "type": "chaise", "x": 4.1, "z": 3.1, "rotation": 180 }, { "type": "chaise", "x": 5.1, "z": 3.1, "rotation": 180 },
+      { "type": "cuisine", "x": 7.75, "z": 0.45 }, { "type": "frigo", "x": 9.0, "z": 2.4, "rotation": -90 },
+      { "type": "wc", "x": 12.6, "z": 0.5, "rotation": -90 }, { "type": "douche", "x": 10.1, "z": 0.6 }, { "type": "lavabo", "x": 11.4, "z": 0.3 },
+      { "type": "lit", "x": 2.2, "z": 7.6 }, { "type": "armoire", "x": 0.45, "z": 6.0, "rotation": 90 },
+      { "type": "lit_simple", "x": 7.3, "z": 7.5 }, { "type": "bureau", "x": 8.6, "z": 5.0, "rotation": 180 },
+      { "type": "lit_simple", "x": 11.6, "z": 7.5 }, { "type": "armoire", "x": 10.2, "z": 5.0, "rotation": 180 },
+      { "type": "banc", "x": 2.5, "z": 10.6 }, { "type": "plante", "x": 5.4, "z": 10.8 }
+    ]
+  }],
+  "toit": { "type": "deux_pans", "materiau": "tole", "couleur": "#9fb0bd", "debord": 0.6 },
+  "terrain": { "largeur": 28, "profondeur": 28, "sol": "gazon" },
+  "exterieur": [
+    { "type": "allee", "x": 5.25, "z": 14, "largeur": 1.6, "profondeur": 5 },
+    { "type": "parking", "x": 10.5, "z": 14.5, "largeur": 5, "profondeur": 6 },
+    { "type": "voiture", "x": 10.5, "z": 14.5, "couleur": "#8a1c1c" },
+    { "type": "palmier", "x": -3, "z": 12, "hauteur": 6.5 },
+    { "type": "arbre", "x": 16, "z": 3, "hauteur": 6 },
+    { "type": "reservoir", "x": 15, "z": 8 },
+    { "type": "cloture", "x": 6.5, "z": 17.5, "largeur": 20 }
+  ]
+}
